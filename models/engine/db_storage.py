@@ -86,7 +86,7 @@ class DBStorage:
         the given class"""
         if cls:
             return (self.__session.query(classes[cls]).count()
-                    if type(cls) == str else 
+                    if type(cls) is str else
                     self.__session.query(cls).count())
         else:
             no_of_all = 0
