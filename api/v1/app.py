@@ -18,10 +18,11 @@ def close_app(self):
     storage.close()
 
 
-@app.error_handler(404)
+@app.errorhandler(404)
 def notfounderror(error):
     '''handle error message'''
-    return make_response(jsonify({"error": "Not found"}, 404))
+    status = {"error": "Not found"}
+    return jsonify(status), 404
 
 
 if __name__ == '__main__':
