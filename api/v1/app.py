@@ -3,7 +3,7 @@
 AirBnB_clone_v3 API constructor
 '''
 
-from flask import Flask
+from flask import Flask, make_response, jsonify
 from models import storage
 from api.v1.views import app_views
 from os import getenv
@@ -16,6 +16,12 @@ app.register_blueprint(app_views)
 def close_app(self):
     """Removes the current SQLAlchemy Session"""
     storage.close()
+
+
+@app.error_handler(404)
+def notfounderror(error):
+    '''handle error message'''
+    return make_response(jsonify({"error": "Not found"}, 404))
 
 
 if __name__ == '__main__':
