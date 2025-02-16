@@ -1,13 +1,20 @@
 #!/usr/bin/python3
+"""States Routes file"""
 from api.v1.views import app_views
-from models import storage
+import sys
+import os
 from models.state import State
 from flask import jsonify, abort, request
 
 
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../")))
+
 @app_views.route("/states", methods=["GET"], strict_slashes=False)
 def get_all_states():
     """Retrieves the list of all States"""
+    from models import storage
     states = storage.all(State).values()
     return (jsonify([state.to_dict() for state in states]))
 
@@ -16,6 +23,7 @@ def get_all_states():
                  strict_slashes=False)
 def get_states_with_id(state_id):
     """Retrieves a State object"""
+    from models import storage
     state = storage.get(State, state_id)
     if state:
         return (jsonify(state.to_dict()))
@@ -27,6 +35,7 @@ def get_states_with_id(state_id):
                  strict_slashes=False)
 def remove_state(state_id):
     """Deletes a State object"""
+    from models import storage
     state = storage.get(State, state_id)
     if not state:
         abort(404)
@@ -39,6 +48,7 @@ def remove_state(state_id):
 @app_views.route("/states", methods=["POST"], strict_slashes=False)
 def create_new_state():
     """Creates a State"""
+    from models import storage
     data = request.get_json()
     if not data:
         abort(400, "Not a JSON")
@@ -53,6 +63,7 @@ def create_new_state():
 @app_views.route("/states/<state_id>", methods=["PUT"], strict_slashes=False)
 def put_state(state_id):
     """Updates a State object"""
+    from models import storage
     state_data = storage.get(State, state_id)
     if not state_data:
         abort(404)
