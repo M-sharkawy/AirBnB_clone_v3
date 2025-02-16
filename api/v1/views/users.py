@@ -7,7 +7,8 @@ from api.v1.views import app_views
 from flask import jsonify, abort, request
 
 
-@app_views.route("/users", methods=["GET"], strict_slashes=False)
+@app_views.route("/users", methods=["GET"],
+                 strict_slashes=False)
 def get_list():
     '''
     return list for all User objects
@@ -19,7 +20,8 @@ def get_list():
     return jsonify(usr_list)
 
 
-@app_views.route("/places/<int:user_id>", methods=["GET"])
+@app_views.route("/places/<user_id>", methods=["GET"],
+                 strict_slashes=False)
 def get_usr_id(user_id):
     '''
     return user object by id
@@ -30,7 +32,8 @@ def get_usr_id(user_id):
     return jsonify(user.to_dict())
 
 
-@app_views.route("users/<int:user_id>", methods=["DELETE"])
+@app_views.route("users/<user_id>", methods=["DELETE"],
+                 strict_slashes=False)
 def delete_obj(user_id):
     '''
     delete user obj according to id
@@ -64,7 +67,8 @@ def update_userlist():
     return jsonify(new_user.to_dict()), 201
 
 
-@app_views.route("/users/<int:user_id>", methods=["PUT"])
+@app_views.route("/users/<user_id>", methods=["PUT"],
+                 strict_slashes=False)
 def put_city(user_id):
     """Updates a User object"""
     city = storage.get(User, user_id)
