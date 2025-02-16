@@ -4,9 +4,6 @@ AirBnB_clone_v3 API constructor
 '''
 
 from flask import Flask, jsonify, request
-import os
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 import models
 from api.v1.views import app_views
 from os import getenv
