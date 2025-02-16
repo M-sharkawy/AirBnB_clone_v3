@@ -3,8 +3,11 @@
 AirBnB_clone_v3 API constructor
 '''
 
-from flask import Flask, jsonify
-from models import storage
+from flask import Flask, jsonify, request
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+import models
 from api.v1.views import app_views
 from os import getenv
 
@@ -15,7 +18,7 @@ app.register_blueprint(app_views)
 @app.teardown_appcontext
 def close_app(self):
     """Removes the current SQLAlchemy Session"""
-    storage.close()
+    models.storage.close()
 
 
 @app.errorhandler(404)
