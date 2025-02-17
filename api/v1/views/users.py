@@ -1,87 +1,86 @@
 #!/usr/bin/python3
-"""users Routes file"""
-
+"""handles all RESTFul API actions for User objects"""
+from api.v1.views import app_views
 from models import storage
 from models.user import User
-from api.v1.views import app_views
+import hashlib
 from flask import jsonify, abort, request
 
 
-@app_views.route("/users", methods=["GET"], strict_slashes=False)
-def get_list():
-    '''
-    return list for all User objects
-    '''
-    usr_list = []
-    users = storage.all(User)
-    for user in users.values():
-        usr_list.append(user.to_dict())
-    return jsonify(usr_list)
+@app_views.route("/users", methods=["GET"],
+                 strict_slashes=False)
+def get_users():
+    """Retrieves the list of all User objects"""
+    users = storage.all(User).values()
+    return (jsonify([obj.to_dict() for obj in users]))
 
 
-@app_views.route("/places/<int:user_id>", methods=["GET"])
-def get_usr_id(user_id):
-    '''
-    return user object by id
-    '''
+@app_views.route("/users/<user_id>", methods=["GET"],
+                 strict_slashes=False)
+def get_user_by_id(user_id):
+    """Retrieves a User object"""
     user = storage.get(User, user_id)
-    if user is None:
+    if not user:
         abort(404)
-    return jsonify(user.to_dict())
+
+    return (jsonify(user.to_dict()))
 
 
-@app_views.route("users/<int:user_id>", methods=["DELETE"])
-def delete_obj(user_id):
-    '''
-    delete user obj according to id
-    '''
+@app_views.route("/users/<user_id>", methods=["DELETE"], strict_slashes=False)
+def del_user_by_id(user_id):
+    """Deletes a User object"""
     user = storage.get(User, user_id)
-    if user is None:
+    if not user:
         abort(404)
-    storage.delete(user)
+
+    user.delete()
     storage.save()
-    return jsonify({}), 200
+    return (jsonify({}), 200)
 
 
-@app_views.route("/users", methods=["POST"])
-def update_userlist():
-    '''
-    Create user list
-    '''
+@app_views.route("/users", methods=["POST"], strict_slashes=False)
+def create_user():
+    """Creates a User"""
     data = request.get_json()
-
     if not data:
-        abort(400, description="Not a JSON")
+        abort(400, "Not a JSON")
+
     if "email" not in data:
-        abort(400, description="Missing email")
+        abort(400, "Missing email")
     if "password" not in data:
-        abort(400, description="Missing password")
+        abort(400, "Missing password")
 
-    new_user = User(**data)
-    storage.new(new_user)
+    m = hashlib.md5(str.encode(data["password"]))
+    data["password"] = m.hexdigest()
+
+    user = User(**data)
+    storage.new(user)
     storage.save()
+    return (jsonify(user.to_dict()), 201)
 
-    return jsonify(new_user.to_dict()), 201
 
-
-@app_views.route("/users/<int:user_id>", methods=["PUT"])
-def put_city(user_id):
-    """Updates a User object"""
-    city = storage.get(User, user_id)
-    if not city:
+@app_views.route("/users/<user_id>", methods=["PUT"], strict_slashes=False)
+def update_user(user_id):
+    """update existing user"""
+    user = storage.get(User, user_id)
+    if not user:
         abort(404)
 
     data = request.get_json()
     if not data:
-        abort(400, description="Not a JSON")
+        abort(400, "Not a JSON")
 
     data.pop("id", None)
-    data.pop("state_id", None)
+    data.pop("email", None)
     data.pop("created_at", None)
     data.pop("updated_at", None)
 
+    if "password" in data:
+        m = hashlib.md5(str.encode(data["password"]))
+        data["password"] = m.hexdigest()
+
     for key, value in data.items():
-        setattr(city, key, value)
+        setattr(user, key, value)
 
     storage.save()
-    return (jsonify(city.to_dict()), 200)
+    return (jsonify(user.to_dict()), 200)
