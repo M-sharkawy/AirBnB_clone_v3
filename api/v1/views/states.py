@@ -31,10 +31,10 @@ def remove_state(state_id):
     state = storage.get(State, state_id)
     if not state:
         abort(404)
-
-    state.delete()
-    storage.save()
-    return (jsonify({}), 200)
+    else:
+        state.delete(state)
+        storage.save()
+        return (jsonify({}), 200)
 
 
 @app_views.route("/states", methods=["POST"], strict_slashes=False)
@@ -62,11 +62,10 @@ def put_state(state_id):
     if not body:
         abort(400, "Not a JSON")
 
-    body.pop("id", None)
-    body.pop("created_at", None)
-    body.pop("updated_at", None)
+    ignored_keys = {"id", "created_at", "updated_at"}
     for key, value in body.items():
-        setattr(state_data, key, value)
+        if key not in ignored_keys:
+            setattr(state_data, key, value)
     storage.save()
 
     return (jsonify(state_data.to_dict()), 200)
